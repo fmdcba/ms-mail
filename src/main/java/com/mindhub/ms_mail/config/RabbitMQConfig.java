@@ -1,8 +1,9 @@
 package com.mindhub.ms_mail.config;
 
-import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.core.Binding;
+import org.springframework.amqp.core.BindingBuilder;
+import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
@@ -11,45 +12,40 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String ORDER_EXCHANGE = "order.exchange";
+    public static final String EXCHANGE_NAME = "app.exchange";
     public static final String ORDER_CREATED_ROUTING_KEY = "order.created";
     public static final String ORDER_CREATED_QUEUE = "order.created.queue";
+    public static final String USER_CREATED_ROUTING_KEY = "user.created";
+    public static final String USER_CREATED_QUEUE = "user.created.queue";
 
-    // Message Converter for JSON Serialization
     @Bean
     public MessageConverter jsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 
-    // Define Exchange
     @Bean
-    public TopicExchange orderExchange() {
-        return new TopicExchange(ORDER_EXCHANGE);
+    public TopicExchange appExchange() {
+        return new TopicExchange(EXCHANGE_NAME);
     }
 
-    // Define Queue
+    @Bean
+    public Queue userCreatedQueue() {
+        return new Queue(USER_CREATED_QUEUE, true);
+    }
+
     @Bean
     public Queue orderCreatedQueue() {
-        return new Queue(ORDER_CREATED_QUEUE);
+        return new Queue(ORDER_CREATED_QUEUE, true);
     }
 
-    // Define Binding between Exchange and Queue
     @Bean
-    public Binding orderCreatedBinding(Queue orderCreatedQueue, TopicExchange orderExchange) {
-        return BindingBuilder.bind(orderCreatedQueue).to(orderExchange).with(ORDER_CREATED_ROUTING_KEY);
+    public Binding userCreatedBinding(Queue userCreatedQueue, TopicExchange appExchange) {
+        return BindingBuilder.bind(userCreatedQueue).to(appExchange).with(USER_CREATED_ROUTING_KEY);
     }
 
-    // RabbitTemplate with JSON Message Converter
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter jsonMessageConverter) {
-        RabbitTemplate template = new RabbitTemplate(connectionFactory);
-        template.setMessageConverter(jsonMessageConverter);
-        return template;
-    }
-
-    // AmqpTemplate Bean (Optional)
-    @Bean
-    public AmqpTemplate amqpTemplate(ConnectionFactory connectionFactory) {
-        return rabbitTemplate(connectionFactory, jsonMessageConverter());
+    public Binding orderCreatedBinding(Queue orderCreatedQueue, TopicExchange appExchange) {
+        return BindingBuilder.bind(orderCreatedQueue).to(appExchange).with(ORDER_CREATED_ROUTING_KEY);
     }
 }
+

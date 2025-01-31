@@ -3,14 +3,16 @@ package com.mindhub.ms_mail.sevices.Impl;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.PdfWriter;
 import com.mindhub.ms_mail.dtos.OrderEntityDTO;
+import com.mindhub.ms_mail.sevices.PDFGeneratorService;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 @Service
-public class PDFGeneratorServiceImpl {
+public class PDFGeneratorServiceImpl implements PDFGeneratorService {
 
+    @Override
     public ByteArrayInputStream export(OrderEntityDTO order) throws DocumentException {
         Document document = new Document(PageSize.A4);
         ByteArrayOutputStream out = new ByteArrayOutputStream();

@@ -2,60 +2,67 @@ package com.mindhub.ms_mail.sevices.Impl;
 
 import com.lowagie.text.DocumentException;
 import com.mindhub.ms_mail.config.RabbitMQConfig;
+import com.mindhub.ms_mail.dtos.NewUserDTO;
 import com.mindhub.ms_mail.dtos.OrderEntityDTO;
+import com.mindhub.ms_mail.sevices.MailService;
+import com.mindhub.ms_mail.sevices.PDFGeneratorService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.util.ByteArrayDataSource;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamSource;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 
 @Service
-public class MailServiceImpl {
+public class MailServiceImpl implements MailService {
 
     @Autowired
     private JavaMailSender emailSender;
 
     @Autowired
-    PDFGeneratorServiceImpl pdfGeneratorService;
+    private PDFGeneratorService pdfGeneratorService;
 
-//    public void sendSimpleMessage(String to, String subject, String text) {
-//        try {
-//            SimpleMailMessage message = new SimpleMailMessage();
-//            message.setFrom("testgrupo001@gmail.com");
-//            message.setTo(to);
-//            message.setSubject(subject);
-//            message.setText(text);
-//            emailSender.send(message);
-//        } catch (Exception e) {
-//            System.out.println(e.getMessage());
-//        }
-//    }
+    @Override
+    public void sendSimpleMessage(String to, String subject, String text) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("testgrupo001@gmail.com");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
 
-//    @RabbitListener(queues = RabbitMQConfig.ORDER_CREATED_QUEUE)
-//    public void handleOrderCreated(OrderEntityDTO order) {
-//        try {
-//            String to = "daniaranda.003@gmail.com";
-//            String subject = "Order ID: " + order.getId();
-//            String text = "User ID: " + order.getUserId() + "\nOrder Status: " + order.getStatus();
-//
-//            sendSimpleMessage(to, subject, text);
-//
-//
-//            System.out.println("Email sent to " + to + " for Order ID: " + order.getId());
-//        } catch (Exception e) {
-//            System.err.println("Error sending email: " + e.getMessage());
-//        }
-//    }
+            System.out.println("Simple email sent to " + to + " with subject: " + subject);
+        } catch (Exception e) {
+            System.err.println("Error sending simple email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.USER_CREATED_QUEUE)
+    @Override
+    public void sendWelcomeEmail(NewUserDTO user) {
+        try {
+            String to = "daniaranda.003@gmail.com";
+            String subject = "Welcome to OrdersAPP, " + user.username() + "!";
+            String text = "Hello '" + user.username()+ "'" +"\n\nWelcome to our platform! We're happy to have you.\nNext step is verifying your account.\n\nBest regards. Grupo 1 Team";
+
+            sendSimpleMessage(to, subject, text);
+
+            System.out.println("Welcome email sent to " + to + " for User ID: " + user.id());
+        } catch (Exception e) {
+            System.err.println("Error sending welcome email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
 
     @RabbitListener(queues = RabbitMQConfig.ORDER_CREATED_QUEUE)
+    @Override
     public void sendOrderEmailWithPdf(OrderEntityDTO order) {
         try {
             String to = "daniaranda.003@gmail.com";
