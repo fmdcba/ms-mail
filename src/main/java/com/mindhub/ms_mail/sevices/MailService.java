@@ -9,5 +9,7 @@ public interface MailService {
 
     void sendWelcomeEmail(NewUserDTO user);
 
+    void sendUserValidationKey(String validation);
+
     void sendOrderEmailWithPdf(OrderEntityDTO order);
 }

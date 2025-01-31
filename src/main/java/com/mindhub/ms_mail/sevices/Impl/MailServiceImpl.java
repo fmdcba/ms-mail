@@ -61,6 +61,23 @@ public class MailServiceImpl implements MailService {
         }
     }
 
+    @RabbitListener(queues = RabbitMQConfig.USER_VALIDATED_QUEUE)
+    @Override
+    public void sendUserValidationKey(String validation) {
+        try {
+            String to = "daniaranda.003@gmail.com";
+            String subject = "Please validate your account to login";
+            String text = "For validating your account make a GET request at localhost:8080/api/auth/validate?token=" + validation;
+
+            sendSimpleMessage(to, subject, text);
+
+            System.out.println("Validation mail sent to " + to);
+        } catch (Exception e) {
+            System.err.println("Error sending welcome email: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
     @RabbitListener(queues = RabbitMQConfig.ORDER_CREATED_QUEUE)
     @Override
     public void sendOrderEmailWithPdf(OrderEntityDTO order) {

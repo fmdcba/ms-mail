@@ -17,6 +17,9 @@ public class RabbitMQConfig {
     public static final String ORDER_CREATED_QUEUE = "order.created.queue";
     public static final String USER_CREATED_ROUTING_KEY = "user.created";
     public static final String USER_CREATED_QUEUE = "user.created.queue";
+    public static final String USER_VALIDATED_QUEUE = "user.validated.queue";
+    public static final String USER_VALIDATED_ROUTING_KEY = "user.validated";
+
 
     @Bean
     public MessageConverter jsonMessageConverter() {
@@ -34,6 +37,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Queue userValidatedQueue() {
+        return new Queue(USER_VALIDATED_QUEUE, true);
+    }
+
+    @Bean
     public Queue orderCreatedQueue() {
         return new Queue(ORDER_CREATED_QUEUE, true);
     }
@@ -41,6 +49,11 @@ public class RabbitMQConfig {
     @Bean
     public Binding userCreatedBinding(Queue userCreatedQueue, TopicExchange appExchange) {
         return BindingBuilder.bind(userCreatedQueue).to(appExchange).with(USER_CREATED_ROUTING_KEY);
+    }
+
+    @Bean
+    public Binding userValidatedBinding(Queue userValidatedQueue, TopicExchange appExchange) {
+        return BindingBuilder.bind(userValidatedQueue).to(appExchange).with(USER_VALIDATED_ROUTING_KEY);
     }
 
     @Bean
