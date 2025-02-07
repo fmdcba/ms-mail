@@ -17,6 +17,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
+import java.util.Map;
 
 @Service
 public class MailServiceImpl implements MailService {
@@ -54,7 +55,7 @@ public class MailServiceImpl implements MailService {
 
             sendSimpleMessage(to, subject, text);
 
-            System.out.println("Welcome email sent to " + to + " for User ID: " + user.id());
+            System.out.println("Welcome email sent user email: " + to);
         } catch (Exception e) {
             System.err.println("Error sending welcome email: " + e.getMessage());
             e.printStackTrace();
@@ -63,11 +64,11 @@ public class MailServiceImpl implements MailService {
 
     @RabbitListener(queues = RabbitMQConfig.USER_VALIDATED_QUEUE)
     @Override
-    public void sendUserValidationKey(String validation) {
+    public void sendUserValidationKey(Map<String, String> validationData) {
         try {
-            String to = "daniaranda.003@gmail.com";
+            String to = validationData.get("email");
             String subject = "Please validate your account to login";
-            String text = "For validating your account make a GET request at localhost:8080/api/auth/validate?token=" + validation;
+            String text = "For validating your account make a GET request at localhost:8080/api/auth/validate?token=" + validationData.get("temporaryToken");;
 
             sendSimpleMessage(to, subject, text);
 
