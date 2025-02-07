@@ -48,7 +48,7 @@ public class MailServiceImpl implements MailService {
     @Override
     public void sendWelcomeEmail(NewUserDTO user) {
         try {
-            String to = "daniaranda.003@gmail.com";
+            String to = user.email();
             String subject = "Welcome to OrdersAPP, " + user.username() + "!";
             String text = "Hello '" + user.username()+ "'" +"\n\nWelcome to our platform! We're happy to have you.\nNext step is verifying your account.\n\nBest regards. Grupo 1 Team";
 
